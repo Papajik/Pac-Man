@@ -27,13 +27,19 @@ void Engine::gameLoop()
 	this->run = true;
 	while (run)
 	{
-		_sleep(500);
+		_sleep(300);
 		moveObjects();
 		if (run)
 		{
 			generateMap();
 		}
-	
+		if (ch->getScore() == this->maxScore)
+		{
+			String^ s;
+			run = false;
+			s = parser->loadHighScore(s, this->lvl, this->getScore());
+			this->map = "Level completed\n" + s;
+		}
 
 
 	}
@@ -63,17 +69,17 @@ void Engine::moveObjects()
 								up = false;
 							bool down;
 							if (i != 10)
-								down = !(array[i + 1][j].getFirstObject() !=nullptr&&array[i + 1][j].getFirstObject()->getType() == 1);
+								down = !(array[i + 1][j].getFirstObject() != nullptr&&array[i + 1][j].getFirstObject()->getType() == 1);
 							else
 								down = false;
 							bool left;
 							if (j != 0)
-								left = !(array[i][j - 1].getFirstObject() !=nullptr&&array[i][j - 1].getFirstObject()->getType() == 1);
+								left = !(array[i][j - 1].getFirstObject() != nullptr&&array[i][j - 1].getFirstObject()->getType() == 1);
 							else
 								left = false;
 							bool right;
 							if (i != 16)
-								right = !(array[i][j + 1].getFirstObject() !=nullptr&&array[i][j + 1].getFirstObject()->getType() == 1);
+								right = !(array[i][j + 1].getFirstObject() != nullptr&&array[i][j + 1].getFirstObject()->getType() == 1);
 							else
 								right = false;
 
@@ -176,11 +182,17 @@ void Engine::makeChecks(int i, int j)
 	//check if player has been caught by ghost
 	if (array[i][j].checkCatched())
 	{
-		this->map = L"Game over";
-		this->run = false;
+		gameOver();
 	}
 	//check if player has eaten a point
 	array[i][j].checkPoints();
+}
+
+void Engine::gameOver()
+{
+	String^ s = L"Game over\n";
+	this->map = parser->loadHighScore(s, this->lvl, this->getScore());
+	this->run = false;
 }
 
 
@@ -191,6 +203,7 @@ void Engine::stop()
 
 void Engine::setLevel(int x)
 {
+	this->lvl = x;
 	this->array = new MapContainer*[11];
 	for (int i = 0; i < 11; ++i) {
 		this->array[i] = new MapContainer[17];
@@ -200,6 +213,10 @@ void Engine::setLevel(int x)
 	{
 	case 1:
 		this->maxScore = parser->loadLevel(1, array);
+		break;
+	case 2:
+		this->maxScore = parser->loadLevel(2, array);
+		break;
 	}
 
 	this->ch = parser->getCharacter();

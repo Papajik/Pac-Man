@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include<string>
-#include "Parser.h";
+#include "Parser.h"
 using namespace System;
 ref class Engine
 {
@@ -22,6 +22,7 @@ Character* ch;
 	//switch of steps (controls steps of movable objects - one step per engine step)
 bool stepSwitch = false;
 int maxScore = 0;
+int lvl = 0;
 
 void moveObjects();
 void gameLoop();
@@ -29,4 +30,5 @@ void initializeGame();
 void generateMap();
 bool move(Movable *ghost, int i, int j);
 void makeChecks(int i, int j);
+void gameOver();
 };

@@ -12,7 +12,7 @@ Application::EnableVisualStyles();
 Application::SetCompatibleTextRenderingDefault(false);
 Engine engine;
 
-WindowForm::MainForm form(engine);
+MainForm::MainForm form(engine);
 
 Application::Run(%form);
 engine.stop();

@@ -9,10 +9,11 @@ Ghost::Ghost(wchar_t rep) :Movable(3, rep)
 
 void Ghost::changeDir(bool up, bool down, bool left, bool right)
 {
-	
-	bool changed = false;
-	
-	while (!changed) {
+
+	int changed = 0;
+
+	while (changed < 3) {
+		changed++;
 		srand(time(NULL));
 		int dir = rand() % 4;
 		switch (dir)
@@ -21,7 +22,7 @@ void Ghost::changeDir(bool up, bool down, bool left, bool right)
 		{
 			if (left)
 			{
-				changed = true;
+				changed = 10;
 				this->setDirX(-1);
 				this->setRep(L'←');
 				break;
@@ -32,7 +33,7 @@ void Ghost::changeDir(bool up, bool down, bool left, bool right)
 		{
 			if (right)
 			{
-				changed = true;
+				changed = 10;
 				this->setDirX(1);
 				this->setRep(L'→');
 				break;
@@ -43,7 +44,7 @@ void Ghost::changeDir(bool up, bool down, bool left, bool right)
 		{
 			if (up)
 			{
-				changed = true;
+				changed = 10;
 				this->setDirY(-1);
 				this->setRep(L'↑');
 				break;
@@ -53,12 +54,35 @@ void Ghost::changeDir(bool up, bool down, bool left, bool right)
 		{
 			if (down)
 			{
-				changed = true;
+				changed = 10;
 				this->setDirY(1);
 				this->setRep(L'↓');
 				break;
 			}
 		}
+		}
+	}
+	if (changed != 10)
+	{
+		if (up)
+		{
+			this->setDirY(-1);
+			this->setRep(L'↑');
+		}
+		else if (left)
+		{
+			this->setDirX(-1);
+			this->setRep(L'←');
+		}
+		else if (right)
+		{
+			this->setDirX(1);
+			this->setRep(L'→');
+		}
+		else if (down)
+		{
+			this->setDirY(1);
+			this->setRep(L'↓');
 		}
 	}
 }

@@ -2,7 +2,7 @@
 //#pragma execution_character_set("utf-8")
 #include <iostream>
 #include "Engine.h"
-namespace WindowForm {
+namespace MainForm {
 
 
 	using namespace std;
@@ -22,9 +22,11 @@ namespace WindowForm {
 	private:
 		bool run = true;
 		bool handledArrows = false;
+		bool frame = false;
 		Thread^ engThread;
 		Thread^ winThread;
-		Engine^ eng;
+	private: System::Windows::Forms::ToolStripMenuItem^  level2ToolStripMenuItem;
+			 Engine^ eng;
 
 	public:
 		MainForm(Engine %eng)
@@ -37,76 +39,105 @@ namespace WindowForm {
 			//
 		}
 		void setMap(String^ str) {
-
-			this->mapArea->ResetText();
+			RichTextBox^ map;
+			if (frame)
+			{
+				map = this->mapArea;
+			} else
+			{
+				map = this->mapArea2;
+			}
+			//this->mapArea->ResetText();
+			map->ResetText();
 			int length = str->Length;
 			if (length >= 187) {
 				for (int i = 0;i < 11;i++) {
-					appendToMap((str->Substring((i * 17), 17)));
+					appendToMap((str->Substring((i * 17), 17)), map);
 					if (i != 10) {
-						appendToMap("\n");
+						appendToMap("\n", map);
 					}
 
 				}
 			}
 			else
 			{
-				this->mapArea->Text = str;
+				//this->mapArea->Text = str;
+				map->Text = str;
 			}
+			if (frame)
+			{
+				mapArea->Show();
+				mapArea2->Hide();
+			} else
+			{
+				mapArea2->Show();
+				mapArea->Hide();
+			}
+			frame = !frame;
+			
 		}
 
-		void appendToMap(String^ s)
+		void appendToMap(String^ s, RichTextBox^ map)
 		{
-			this->mapArea->AppendText(s);
+			//this->mapArea->AppendText(s);
+			map->AppendText(s);
 		}
+
 
 		void append(String^ str)
 		{
-			if (this->mapArea->InvokeRequired)
-			{
-				cli::array<Object^>^ string = { str };
-				BeginInvoke(gcnew setMapArea(this, &MainForm::setMap), string);
-			}
-			else
-			{
-				this->setMap(str);
-			}
+		
+				if (this->mapArea->InvokeRequired)
+				{
+					cli::array<Object^>^ string = { str};
+					BeginInvoke(gcnew setMapArea(this, &MainForm::setMap), string);
+				}
+				else
+				{
+					this->setMap(str);
+				}
+
 
 		}
 
-		void setScore(int score)
-		{
-			if (this->ScoreShow->InvokeRequired)
-			{
-				cli::array<Object^>^ scor = {score};
-				BeginInvoke(gcnew setScoreShow(this, &MainForm::writeScore), scor);
-			} else
-			{
-				this->writeScore(score);
-			}
-		}
-
-		void writeScore(int score)
-		{
-			this->ScoreShow->Text = ""+score;
-		}
 
 
-		void winLoop()
-		{
-			this->run = true;
-			while (run)
-			{
-				this->append(eng->map);
-				this->setScore(eng->getScore());
-				_sleep(500);
-			}
-		}
 
-		void stop()
-		{
-			this->run = false;
-		}
+
+void setScore(int score)
+{
+	if (this->ScoreShow->InvokeRequired)
+	{
+		cli::array<Object^>^ scor = { score };
+		BeginInvoke(gcnew setScoreShow(this, &MainForm::writeScore), scor);
+	}
+	else
+	{
+		this->writeScore(score);
+	}
+}
+
+void writeScore(int score)
+{
+	this->ScoreShow->Text = "" + score;
+}
+
+
+void winLoop()
+{
+	this->run = true;
+	while (run)
+	{
+		this->append(eng->map);
+		this->setScore(eng->getScore());
+		_sleep(300);
+	}
+}
+
+void stop()
+{
+	this->run = false;
+}
 
 	private:
 		delegate void setMapArea(String^ s);
@@ -125,8 +156,7 @@ namespace WindowForm {
 		}
 	private: System::Windows::Forms::RichTextBox^ mapArea;
 	private: System::Windows::Forms::TextBox^ ScoreShow;
-
-
+	private: System::Windows::Forms::RichTextBox^ mapArea2;
 	private: System::Windows::Forms::Label^ TextScore;
 	private: System::Windows::Forms::MenuStrip^ menuStrip1;
 	private: System::Windows::Forms::ToolStripMenuItem^ menu;
@@ -151,6 +181,7 @@ namespace WindowForm {
 		void InitializeComponent(void)
 		{
 			this->mapArea = (gcnew System::Windows::Forms::RichTextBox());
+			this->mapArea2 = (gcnew System::Windows::Forms::RichTextBox());
 			this->ScoreShow = (gcnew System::Windows::Forms::TextBox());
 			this->TextScore = (gcnew System::Windows::Forms::Label());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
@@ -158,6 +189,7 @@ namespace WindowForm {
 			this->gameToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->level1ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->level2ToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -171,6 +203,17 @@ namespace WindowForm {
 			this->mapArea->Size = System::Drawing::Size(357, 416);
 			this->mapArea->TabIndex = 0;
 			this->mapArea->Text = L"PacMan\nSelect new Level";
+			// 
+			// mapArea2
+			// 
+			this->mapArea2->Font = (gcnew System::Drawing::Font(L"Courier New", 25.75F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(238)));
+			this->mapArea2->Location = System::Drawing::Point(13, 30);
+			this->mapArea2->Name = L"mapArea2";
+			this->mapArea2->ReadOnly = true;
+			this->mapArea2->Size = System::Drawing::Size(357, 416);
+			this->mapArea2->TabIndex = 0;
+			this->mapArea2->Text = L"";
 			// 
 			// ScoreShow
 			// 
@@ -207,15 +250,18 @@ namespace WindowForm {
 			// 
 			// gameToolStripMenuItem
 			// 
-			this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->level1ToolStripMenuItem });
+			this->gameToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+				this->level1ToolStripMenuItem,
+					this->level2ToolStripMenuItem
+			});
 			this->gameToolStripMenuItem->Name = L"gameToolStripMenuItem";
-			this->gameToolStripMenuItem->Size = System::Drawing::Size(105, 22);
+			this->gameToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->gameToolStripMenuItem->Text = L"Game";
 			// 
 			// level1ToolStripMenuItem
 			// 
 			this->level1ToolStripMenuItem->Name = L"level1ToolStripMenuItem";
-			this->level1ToolStripMenuItem->Size = System::Drawing::Size(110, 22);
+			this->level1ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
 			this->level1ToolStripMenuItem->Text = L"Level 1";
 			this->level1ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::level1ToolStripMenuItem_Click);
 			// 
@@ -225,6 +271,13 @@ namespace WindowForm {
 			this->exitToolStripMenuItem->Size = System::Drawing::Size(37, 20);
 			this->exitToolStripMenuItem->Text = L"Exit";
 			// 
+			// level2ToolStripMenuItem
+			// 
+			this->level2ToolStripMenuItem->Name = L"level2ToolStripMenuItem";
+			this->level2ToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->level2ToolStripMenuItem->Text = L"Level 2";
+			this->level2ToolStripMenuItem->Click += gcnew System::EventHandler(this, &MainForm::level2ToolStripMenuItem_Click);
+			// 
 			// MainForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -233,6 +286,7 @@ namespace WindowForm {
 			this->Controls->Add(this->TextScore);
 			this->Controls->Add(this->ScoreShow);
 			this->Controls->Add(this->mapArea);
+			this->Controls->Add(this->mapArea2);
 			this->Controls->Add(this->menuStrip1);
 			this->KeyPreview = true;
 			this->MainMenuStrip = this->menuStrip1;
@@ -256,7 +310,7 @@ namespace WindowForm {
 		this->eng->setLevel(1);
 		engThread = gcnew Thread(gcnew ThreadStart(this->eng, &Engine::startEngine));
 		engThread->Start();
-		winThread = gcnew Thread(gcnew ThreadStart(this, &WindowForm::MainForm::winLoop));
+		winThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::MainForm::winLoop));
 		winThread->Start();
 
 	}
@@ -272,25 +326,25 @@ namespace WindowForm {
 			this->handledArrows = false;
 			switch (e->KeyCode)
 			{
-			case (Keys::Left):
+			case (Keys::A):
 			{
 				this->eng->setCharacterMove(0);
 				this->handledArrows = true;
 				break;
 			}
-			case (Keys::Right):
+			case (Keys::D):
 			{
 				this->eng->setCharacterMove(1);
 				this->handledArrows = true;
 				break;
 			}
-			case (Keys::Up):
+			case (Keys::W):
 			{
 				this->eng->setCharacterMove(2);
 				this->handledArrows = true;
 				break;
 			}
-			case (Keys::Down):
+			case (Keys::S):
 			{
 				this->eng->setCharacterMove(3);
 				this->handledArrows = true;
@@ -304,5 +358,14 @@ namespace WindowForm {
 		e->Handled = handledArrows;
 	}
 
+	private: System::Void level2ToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
+		this->eng->stop();
+		this->stop();
+		this->eng->setLevel(2);
+		engThread = gcnew Thread(gcnew ThreadStart(this->eng, &Engine::startEngine));
+		engThread->Start();
+		winThread = gcnew Thread(gcnew ThreadStart(this, &MainForm::MainForm::winLoop));
+		winThread->Start();
+	}
 };
 }
